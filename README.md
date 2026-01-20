@@ -1,2 +1,7 @@
-# beathub-api
-Kalvium's Learning Project.
+# BeatHub API
+
+Welcome to the backend of BeatHub.
+
+- Status: Initial Setup
+
+- Developer: Garvit Singh
