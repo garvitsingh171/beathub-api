@@ -14,3 +14,5 @@ const playlistSchema = new mongoose.Schema({
         ref: 'Song'
     }]
 })
+
+module.exports = mongoose.model("Playlist", playlistSchema)

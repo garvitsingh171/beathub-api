@@ -18,3 +18,5 @@ const songSchema = new mongoose.Schema({
         ref: 'Album'
     }]
 })
+
+module.exports = mongoose.model("Song", songSchema)

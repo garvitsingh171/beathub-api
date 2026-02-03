@@ -14,3 +14,5 @@ const albumSchema = new mongoose.Schema({
         ref: 'Artist'
     }]
 })
+
+module.exports = mongoose.model("Album", albumSchema)
