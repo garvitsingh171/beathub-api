@@ -7,7 +7,7 @@ const albumSchema = new mongoose.Schema({
     },
     releaseDate: {
         type: Date,
-        required: trusted
+        required: true
     },
     artist: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -15,4 +15,4 @@ const albumSchema = new mongoose.Schema({
     }]
 })
 
-module.exports = mongoose.model("Album", albumSchema)
+export default mongoose.model("Album", albumSchema)

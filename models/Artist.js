@@ -26,4 +26,4 @@ const artistSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model("Artist", artistSchema);
+export default mongoose.model("Artist", artistSchema);

@@ -2,11 +2,11 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import Artist from '../models/Artist';
-import Album from '../models/Album';
-import Song from '../models/Song';
-import User from '../models/User';
-import Playlist from '../models/Playlist';
+import Artist from '../models/Artist.js';
+import Album from '../models/Album.js';
+import Song from '../models/Song.js';
+import User from '../models/User.js';
+import Playlist from '../models/Playlist.js';
 
 async function seed() {
   try {
