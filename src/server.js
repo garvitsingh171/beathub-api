@@ -12,6 +12,8 @@ app.use("/api/songs", require("../src/routes/song.route"));
 
 app.use("/api/playlist", require("../src/routes/playlist.route"));
 
+app.use('/api/artist', require('../src/routes/artist.route'));
+
 const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
