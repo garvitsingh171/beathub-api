@@ -10,6 +10,8 @@ app.use("/api/users", require("../src/routes/user.route"));
 
 app.use("/api/songs", require("../src/routes/song.route"));
 
+app.use("/api/playlist", require("../src/routes/playlist.route"));
+
 const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {

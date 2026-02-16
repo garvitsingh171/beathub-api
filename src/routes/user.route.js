@@ -8,8 +8,6 @@ const {
 
 const router = express.Router();
 
-const User = require("../../models/User");
-
 router.post("/register", createUserController);
 
 router.get("/", getAllUsersController);

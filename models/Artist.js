@@ -20,8 +20,6 @@ const artistSchema = new mongoose.Schema(
             twitter: String,
             instagram: String,
         },
-        // albums: [{ type: mongoose.Schema.Types.ObjectId, ref: "Album" }],
-        // songs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
     },
     { timestamps: true },
 );
