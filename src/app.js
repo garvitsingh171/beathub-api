@@ -9,6 +9,7 @@ app.use("/api/songs", require("../src/routes/song.route"));
 app.use("/api/playlist", require("../src/routes/playlist.route"));
 app.use('/api/artist', require('../src/routes/artist.route'));
 app.use('/api/album', require("../src/routes/album.route"));
+app.use("/api/analytics", require("../src/routes/analytics.route"));
 
 app.get("/", (req, res) => {
     res.send("Hello, World!");
