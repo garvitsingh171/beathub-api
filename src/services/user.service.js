@@ -9,11 +9,20 @@ const getAllUsers = async () => {
     return await User.find();
 };
 
+// const updateUser = async (id, updates) => {
+//     return await User.findByIdAndUpdate(id, updates, {
+//         new: true,
+//         runValidators: true,
+//     });
+// };
+
 const updateUser = async (id, updates) => {
-    return await User.findByIdAndUpdate(id, updates, {
-        new: true,
-        runValidators: true,
-    });
+    const user = await User.findById(id).select("+password");
+    if (!user) return null;
+
+    Object.assign(user, updates);
+    await user.save();
+    return user;
 };
 
 const deleteUser = async (id) => {
