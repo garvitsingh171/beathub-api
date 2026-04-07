@@ -1,5 +1,7 @@
 const songService = require("../services/song.service");
 const mongoose = require("mongoose");
+const Song = require("../../models/Song");
+const { encodeCursor, decodeCursor } = require("../utils/cursor");
 
 const createSongController = async (req, res) => {
     try {
@@ -24,6 +26,68 @@ const createSongController = async (req, res) => {
         res.status(500).json({
             message: "Error creating song",
             error: error.message,
+        });
+    }
+};
+
+const getSongsCursor = async (req, res) => {
+    try {
+        const limit = Math.min(parseInt(req.query.limit, 10) || 10, 100);
+        const encodedCursor = req.query.cursor;
+
+        let query = {};
+
+        if (encodedCursor) {
+            let decoded;
+            try {
+                decoded = decodeCursor(encodedCursor);
+            } catch (e) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid cursor encoding",
+                });
+            }
+
+            if (!mongoose.Types.ObjectId.isValid(decoded)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid cursor value",
+                });
+            }
+
+            query = { _id: { $lt: new mongoose.Types.ObjectId(decoded) } };
+        }
+
+        const songs = await Song.find(query)
+            .sort({ _id: -1 })
+            .limit(limit + 1)
+            .lean();
+
+        const hasMore = songs.length > limit;
+
+        if (hasMore) {
+            songs.pop();
+        }
+
+        const nextCursor =
+            hasMore && songs.length > 0
+                ? encodeCursor(songs[songs.length - 1]._id)
+                : null;
+
+        return res.status(200).json({
+            success: true,
+            data: songs,
+            pagination: {
+                nextCursor,
+                hasMore,
+                limit,
+                count: songs.length,
+            },
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
         });
     }
 };
@@ -53,7 +117,7 @@ const updateSongController = async (req, res) => {
         const updatedSong = await songService.updateSong(id, updates);
 
         if (!updatedSong) {
-            res.status(404).json({
+            return res.status(404).json({
                 error: "Song not found",
             });
         }
@@ -79,7 +143,7 @@ const deleteSongController = async (req, res) => {
         const deletedSong = await songService.deleteSong(id);
 
         if (!deletedSong) {
-            res.status(404).json({
+            return res.status(404).json({
                 error: "Song Not Found",
             });
         }
@@ -94,7 +158,8 @@ const deleteSongController = async (req, res) => {
 
 module.exports = {
     createSongController,
-    updateSongController,
+    getSongsCursor,
     getAllSongsController,
+    updateSongController,
     deleteSongController,
 };

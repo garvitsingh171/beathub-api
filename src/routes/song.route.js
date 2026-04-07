@@ -1,7 +1,7 @@
 const express = require("express");
 const {
     createSongController,
-    getAllSongsController,
+    getSongsCursor,
     updateSongController,
     deleteSongController,
 } = require("../controllers/song.controller");
@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post("/register", createSongController);
 
-router.get("/", getAllSongsController);
+router.get("/", getSongsCursor);
 
 router.patch("/:id", updateSongController);
 
