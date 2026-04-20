@@ -1,85 +1,62 @@
 const playlistService = require("../services/playlist.service");
-const mongoose = require("mongoose");
+const asyncHandler = require("../utils/asyncHandler");
+const AppError = require("../utils/appError");
 
-const createPlaylistController = async (req, res) => {
-    try {
-        const { name } = req.body;
+const createPlaylistController = asyncHandler(async (req, res) => {
+    const { name, user, songs } = req.body;
 
-        if (!name) {
-            return res.status(400).json({
-                message: "Playlist name is required.",
-            });
-        }
+    const newPlaylist = await playlistService.createPlaylist({
+        name,
+        user,
+        songs,
+    });
 
-        const newPlaylist = await playlistService.createPlaylist({
-            name,
-        });
+    res.status(201).json({
+        success: true,
+        message: "Playlist created successfully",
+        playlist: newPlaylist,
+    });
+});
 
-        res.status(201).json({
-            message: "Playlist created successfully",
-            playlist: newPlaylist,
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Error creating User",
-            error: error.message,
-        });
+const getAllPlaylistController = asyncHandler(async (req, res) => {
+    const playlists = await playlistService.getAllPlaylist();
+    res.status(200).json({
+        success: true,
+        data: playlists,
+    });
+});
 
-        console.error("Error creating User:", error);
-    }
-};
-
-const getAllPlaylistController = async (req, res) => {
-    try {
-        const playlists = await playlistService.getAllPlaylist();
-        res.json(playlists);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-const updatePlaylistController = async (req, res) => {
+const updatePlaylistController = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-    try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ error: "Invalid object Id" });
-        }
+    const updatedPlaylist = await playlistService.updatePlaylist(id, updates);
 
-        const updatedPlaylist = await playlistService.updatePlaylist(
-            id,
-            updates,
-        );
-
-        if (!updatedPlaylist) {
-            res.status(400).json({ error: "User not found" });
-        }
-        res.status(200).json(updatedPlaylist);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    if (!updatedPlaylist) {
+        throw new AppError("Playlist not found", 404);
     }
-};
 
-const deletePlaylistController = async (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "Playlist updated successfully",
+        playlist: updatedPlaylist,
+    });
+});
+
+const deletePlaylistController = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ error: "Invalid Object ID" });
-        }
+    const deletedPlaylist = await playlistService.deletePlaylist(id);
 
-        const deletedUser = await playlistService.deletePlaylist(id);
-
-        if (!deletedUser) {
-            res.status(400).json({ error: "User not found" });
-        }
-
-        res.status(204).send();
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    if (!deletedPlaylist) {
+        throw new AppError("Playlist not found", 404);
     }
-};
+
+    res.status(200).json({
+        success: true,
+        message: "Playlist deleted successfully",
+    });
+});
 
 module.exports = {
     createPlaylistController,

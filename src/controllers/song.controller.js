@@ -2,159 +2,114 @@ const songService = require("../services/song.service");
 const mongoose = require("mongoose");
 const Song = require("../../models/Song");
 const { encodeCursor, decodeCursor } = require("../utils/cursor");
+const asyncHandler = require("../utils/asyncHandler");
+const AppError = require("../utils/appError");
 
-const createSongController = async (req, res) => {
-    try {
-        const { title, duration } = req.body;
+const createSongController = asyncHandler(async (req, res) => {
+    const { title, duration, artist, album } = req.body;
 
-        if (!title || !duration) {
-            return res.status(400).json({
-                message: "title and duration is required",
-            });
+    const newSong = await songService.createSong({
+        title,
+        duration,
+        artist,
+        album,
+    });
+
+    res.status(201).json({
+        success: true,
+        message: "Song created successfully",
+        song: newSong,
+    });
+});
+
+const getSongsCursor = asyncHandler(async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 10, 100);
+    const encodedCursor = req.query.cursor;
+
+    let query = {};
+
+    if (encodedCursor) {
+        let decoded;
+        try {
+            decoded = decodeCursor(encodedCursor);
+        } catch (error) {
+            throw new AppError("Invalid cursor encoding", 400);
         }
 
-        const newSong = await songService.createSong({
-            title,
-            duration,
-        });
-
-        res.status(201).json({
-            message: "Song created successfully",
-            song: newSong,
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Error creating song",
-            error: error.message,
-        });
-    }
-};
-
-const getSongsCursor = async (req, res) => {
-    try {
-        const limit = Math.min(parseInt(req.query.limit, 10) || 10, 100);
-        const encodedCursor = req.query.cursor;
-
-        let query = {};
-
-        if (encodedCursor) {
-            let decoded;
-            try {
-                decoded = decodeCursor(encodedCursor);
-            } catch (e) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid cursor encoding",
-                });
-            }
-
-            if (!mongoose.Types.ObjectId.isValid(decoded)) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid cursor value",
-                });
-            }
-
-            query = { _id: { $lt: new mongoose.Types.ObjectId(decoded) } };
+        if (!mongoose.Types.ObjectId.isValid(decoded)) {
+            throw new AppError("Invalid cursor value", 400);
         }
 
-        const songs = await Song.find(query)
-            .sort({ _id: -1 })
-            .limit(limit + 1)
-            .lean();
-
-        const hasMore = songs.length > limit;
-
-        if (hasMore) {
-            songs.pop();
-        }
-
-        const nextCursor =
-            hasMore && songs.length > 0
-                ? encodeCursor(songs[songs.length - 1]._id)
-                : null;
-
-        return res.status(200).json({
-            success: true,
-            data: songs,
-            pagination: {
-                nextCursor,
-                hasMore,
-                limit,
-                count: songs.length,
-            },
-        });
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Server error",
-        });
+        query = { _id: { $lt: new mongoose.Types.ObjectId(decoded) } };
     }
-};
 
-const getAllSongsController = async (req, res) => {
-    try {
-        const songs = await songService.getAllSong();
-        res.json(songs);
-    } catch (error) {
-        res.status(500).json({
-            error: error.message,
-        });
+    const songs = await Song.find(query)
+        .sort({ _id: -1 })
+        .limit(limit + 1)
+        .lean();
+
+    const hasMore = songs.length > limit;
+
+    if (hasMore) {
+        songs.pop();
     }
-};
 
-const updateSongController = async (req, res) => {
+    const nextCursor =
+        hasMore && songs.length > 0
+            ? encodeCursor(songs[songs.length - 1]._id)
+            : null;
+
+    return res.status(200).json({
+        success: true,
+        data: songs,
+        pagination: {
+            nextCursor,
+            hasMore,
+            limit,
+            count: songs.length,
+        },
+    });
+});
+
+const getAllSongsController = asyncHandler(async (req, res) => {
+    const songs = await songService.getAllSong();
+    res.status(200).json({
+        success: true,
+        data: songs,
+    });
+});
+
+const updateSongController = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-    try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({
-                error: "Invalid Object Id",
-            });
-        }
+    const updatedSong = await songService.updateSong(id, updates);
 
-        const updatedSong = await songService.updateSong(id, updates);
-
-        if (!updatedSong) {
-            return res.status(404).json({
-                error: "Song not found",
-            });
-        }
-
-        res.status(200).json(updatedSong);
-    } catch (error) {
-        res.status(500).json({
-            error: "Internal Server Error",
-        });
+    if (!updatedSong) {
+        throw new AppError("Song not found", 404);
     }
-};
 
-const deleteSongController = async (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "Song updated successfully",
+        song: updatedSong,
+    });
+});
+
+const deleteSongController = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({
-                error: "Invalid Object Id",
-            });
-        }
+    const deletedSong = await songService.deleteSong(id);
 
-        const deletedSong = await songService.deleteSong(id);
-
-        if (!deletedSong) {
-            return res.status(404).json({
-                error: "Song Not Found",
-            });
-        }
-
-        res.status(200).send();
-    } catch (error) {
-        res.status(500).json({
-            error: "Internal Server Error",
-        });
+    if (!deletedSong) {
+        throw new AppError("Song not found", 404);
     }
-};
+
+    res.status(200).json({
+        success: true,
+        message: "Song deleted successfully",
+    });
+});
 
 module.exports = {
     createSongController,
