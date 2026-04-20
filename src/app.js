@@ -1,4 +1,7 @@
 const express = require("express");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
+const { notFoundHandler, globalErrorHandler } = require("./middlewares/error.middleware");
 
 const app = express();
 
@@ -10,9 +13,17 @@ app.use("/api/playlist", require("../src/routes/playlist.route"));
 app.use('/api/artist', require('../src/routes/artist.route'));
 app.use('/api/album', require("../src/routes/album.route"));
 app.use("/api/analytics", require("../src/routes/analytics.route"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (req, res) => {
-    res.send("Hello, World!");
+    res.status(200).json({
+        success: true,
+        message: "BeatHub API is running",
+        docs: "/api-docs",
+    });
 });
+
+app.use(notFoundHandler);
+app.use(globalErrorHandler);
 
 module.exports = app;
