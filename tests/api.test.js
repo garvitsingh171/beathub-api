@@ -2,10 +2,11 @@ const request = require("supertest");
 const app = require("../src/app");
 
 describe("API Endpoints", () => {
-    test("It should return Hello, World!", async () => {
+    test("It should return API health payload", async () => {
         const response = await request(app).get("/");
         expect(response.statusCode).toBe(200);
-        expect(response.text).toBe("Hello, World!");
+        expect(response.body).toHaveProperty("success", true);
+        expect(response.body).toHaveProperty("message", "BeatHub API is running");
     });
 });
 
