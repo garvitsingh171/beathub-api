@@ -1,15 +1,21 @@
 const express = require('express');
+const validateRequest = require("../middlewares/validate.middleware");
 
 const router = express.Router();
 
 const { createArtistController, getAllArtistController, updateArtistController, deleteArtistController } = require('../controllers/artist.controller')
+const {
+	createArtistValidation,
+	updateArtistValidation,
+	deleteArtistValidation,
+} = require("../validators/artist.validator");
 
-router.post('/register', createArtistController);
+router.post('/register', createArtistValidation, validateRequest, createArtistController);
 
 router.get('/', getAllArtistController);
 
-router.patch('/:id', updateArtistController);
+router.patch('/:id', updateArtistValidation, validateRequest, updateArtistController);
 
-router.delete('/:id', deleteArtistController);
+router.delete('/:id', deleteArtistValidation, validateRequest, deleteArtistController);
 
 module.exports = router;
