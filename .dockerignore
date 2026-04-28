@@ -1,6 +1,12 @@
 node_modules
 .git
 .env
+.env.*
+tests
+postman
+README.mdnode_modules
+.git
+.env
 Dockerfile
 README.md
 .gitignore
