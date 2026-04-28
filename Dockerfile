@@ -1,31 +1,26 @@
-# Stage 1: Builder
-FROM node:18-alpine AS builder
+FROM node:18-alpine AS deps
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --only=production
+RUN npm ci --omit=dev
 
-COPY . .
-
-
-# Stage 2: Runner (secure)
 FROM node:18-alpine AS runner
 
-# Create non-root user
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+ENV NODE_ENV=production
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY --chown=appuser:appgroup package*.json ./
+COPY --chown=appuser:appgroup src ./src
+COPY --chown=appuser:appgroup models ./models
+COPY --chown=appuser:appgroup db ./db
 
 USER appuser
-
-WORKDIR /home/appuser/app
-
-# Copy only required files
-COPY --from=builder --chown=appuser:appgroup /app/package*.json ./
-COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
-COPY --from=builder --chown=appuser:appgroup /app/src ./src
-COPY --from=builder --chown=appuser:appgroup /app/models ./models
-COPY --from=builder --chown=appuser:appgroup /app/db ./db
 
 EXPOSE 3000
 
