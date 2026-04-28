@@ -13,6 +13,11 @@ const UserSchema = new mongoose.Schema(
             required: true,
             unique: true,
         },
+        role: {
+            type: String,
+            enum: ["user", "admin"],
+            default: "user",
+        },
         password: {
             type: String,
             required: true,
@@ -27,6 +32,14 @@ const UserSchema = new mongoose.Schema(
     },
     { timestamps: true },
 );
+
+UserSchema.set("toJSON", {
+    transform(doc, ret) {
+        delete ret.password;
+        delete ret.__v;
+        return ret;
+    },
+});
 
 UserSchema.pre("save", async function () {
     if (!this.isModified("password")) {
