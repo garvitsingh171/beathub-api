@@ -74,13 +74,31 @@ async function seed() {
 
   console.log("Seeding 500 users...");
   const hashedPassword = await bcrypt.hash("Password@123", 10);
+  const demoUsers = await User.insertMany([
+    {
+      username: "admin",
+      email: "admin@beathub.com",
+      password: await bcrypt.hash("Admin@123", 10),
+      role: "admin",
+      likedSongs: []
+    },
+    {
+      username: "user",
+      email: "user@beathub.com",
+      password: await bcrypt.hash("User@123", 10),
+      role: "user",
+      likedSongs: []
+    }
+  ]);
   const userDocs = Array.from({ length: 500 }, (_, i) => ({
     username: `user_${i + 1}`,
     email: `user_${i + 1}@example.com`,
     password: hashedPassword,
+    role: "user",
     likedSongs: pickMany(songs, 5).map((s) => s._id)
   }));
-  const users = await User.insertMany(userDocs);
+  const regularUsers = await User.insertMany(userDocs);
+  const users = [...demoUsers, ...regularUsers];
 
   console.log("Seeding 500 playlists...");
   const playlistDocs = Array.from({ length: 500 }, (_, i) => ({
