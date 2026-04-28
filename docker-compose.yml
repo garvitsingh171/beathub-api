@@ -9,12 +9,17 @@ services:
     ports:
       - "3000:3000"
     environment:
+      NODE_ENV: development
       PORT: 3000
+      MONGODB_URI: mongodb://db:27017/beatHub
       MONGO_URI: mongodb://db:27017/beatHub
-      JWT_SECRET: local-dev-secret
+      JWT_SECRET: dev-secret-key-local-only
       JWT_EXPIRES_IN: 7d
+      SWAGGER_SERVER_URL: http://localhost:3000
     depends_on:
       - db
+    networks:
+      - beathub-network
     restart: unless-stopped
 
   db:
@@ -22,9 +27,17 @@ services:
     container_name: beathub_db
     ports:
       - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: beatHub
     volumes:
       - db-data:/data/db
+    networks:
+      - beathub-network
     restart: unless-stopped
 
 volumes:
-  db-data:   
+  db-data:
+
+networks:
+  beathub-network:
+    driver: bridge   
