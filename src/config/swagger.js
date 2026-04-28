@@ -15,13 +15,38 @@ const options = {
             },
         ],
         components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
             schemas: {
+                LoginRequest: {
+                    type: "object",
+                    required: ["email", "password"],
+                    properties: {
+                        email: { type: "string", format: "email" },
+                        password: { type: "string", minLength: 6 },
+                    },
+                },
+                LoginResponse: {
+                    type: "object",
+                    properties: {
+                        success: { type: "boolean" },
+                        message: { type: "string" },
+                        token: { type: "string" },
+                        user: { $ref: "#/components/schemas/User" },
+                    },
+                },
                 User: {
                     type: "object",
                     properties: {
                         _id: { type: "string" },
                         username: { type: "string" },
                         email: { type: "string", format: "email" },
+                        role: { type: "string", enum: ["user", "admin"] },
                         likedSongs: {
                             type: "array",
                             items: { type: "string" },
