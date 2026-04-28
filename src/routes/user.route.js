@@ -1,5 +1,6 @@
 const express = require("express");
 const validateRequest = require("../middlewares/validate.middleware");
+const { authenticateToken, requireRole } = require("../middlewares/auth.middleware");
 const {
     createUserController,
     getAllUsersController,
@@ -46,7 +47,7 @@ router.post("/register", createUserValidation, validateRequest, createUserContro
  *       500:
  *         description: Internal server error
  */
-router.get("/", getAllUsersController);
+router.get("/", authenticateToken, requireRole("admin"), getAllUsersController);
 
 /**
  * @swagger
@@ -72,7 +73,7 @@ router.get("/", getAllUsersController);
  *       404:
  *         description: User not found
  */
-router.patch("/:id", updateUserValidation, validateRequest, updateUserController);
+router.patch("/:id", authenticateToken, requireRole("admin"), updateUserValidation, validateRequest, updateUserController);
 
 /**
  * @swagger
@@ -92,6 +93,6 @@ router.patch("/:id", updateUserValidation, validateRequest, updateUserController
  *       404:
  *         description: User not found
  */
-router.delete("/:id", deleteUserValidation, validateRequest, deleteUserController);
+router.delete("/:id", authenticateToken, requireRole("admin"), deleteUserValidation, validateRequest, deleteUserController);
 
 module.exports = router;

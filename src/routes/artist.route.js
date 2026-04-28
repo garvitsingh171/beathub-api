@@ -1,5 +1,6 @@
 const express = require('express');
 const validateRequest = require("../middlewares/validate.middleware");
+const { authenticateToken, requireRole } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
@@ -10,12 +11,12 @@ const {
 	deleteArtistValidation,
 } = require("../validators/artist.validator");
 
-router.post('/register', createArtistValidation, validateRequest, createArtistController);
+router.post('/register', authenticateToken, requireRole("admin"), createArtistValidation, validateRequest, createArtistController);
 
 router.get('/', getAllArtistController);
 
-router.patch('/:id', updateArtistValidation, validateRequest, updateArtistController);
+router.patch('/:id', authenticateToken, requireRole("admin"), updateArtistValidation, validateRequest, updateArtistController);
 
-router.delete('/:id', deleteArtistValidation, validateRequest, deleteArtistController);
+router.delete('/:id', authenticateToken, requireRole("admin"), deleteArtistValidation, validateRequest, deleteArtistController);
 
 module.exports = router;
