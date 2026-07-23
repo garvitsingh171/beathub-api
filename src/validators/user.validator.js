@@ -10,6 +10,7 @@ const createUserValidation = [
         .withMessage("username must be at least 3 characters"),
     body("email")
         .trim()
+        .toLowerCase()
         .notEmpty()
         .withMessage("email is required")
         .isEmail()
@@ -24,7 +25,7 @@ const createUserValidation = [
 const updateUserValidation = [
     mongoIdParamValidator("id"),
     body("username").optional().trim().isLength({ min: 3 }).withMessage("username must be at least 3 characters"),
-    body("email").optional().trim().isEmail().withMessage("email must be valid"),
+    body("email").optional().trim().toLowerCase().isEmail().withMessage("email must be valid"),
     body("password").optional().isLength({ min: 6 }).withMessage("password must be at least 6 characters"),
 ];
 

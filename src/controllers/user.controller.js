@@ -4,10 +4,11 @@ const AppError = require("../utils/appError");
 
 const createUserController = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
+    const normalizedEmail = email.trim().toLowerCase();
 
     const newUser = await userService.createUser({
         username,
-        email,
+        email: normalizedEmail,
         password,
     });
 

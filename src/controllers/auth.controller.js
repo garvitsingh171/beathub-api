@@ -7,8 +7,9 @@ const getJwtSecret = () => process.env.JWT_SECRET;
 
 const loginController = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email: normalizedEmail }).select("+password");
 
     if (!user) {
         throw new AppError("Invalid email or password", 401);

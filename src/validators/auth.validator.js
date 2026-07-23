@@ -3,6 +3,7 @@ const { body } = require("express-validator");
 const loginValidation = [
     body("email")
         .trim()
+        .toLowerCase()
         .notEmpty()
         .withMessage("email is required")
         .isEmail()
