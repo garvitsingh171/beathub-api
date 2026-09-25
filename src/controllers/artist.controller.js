@@ -1,4 +1,4 @@
-const artistService = require('../services/artist.service');
+const artistService = require("../services/artist.service");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/appError");
 
@@ -29,7 +29,8 @@ const getAllArtistController = asyncHandler(async (req, res) => {
 
 const updateArtistController = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const updates = req.body;
+    const { name, genre, followers, socialLinks } = req.body;
+    const updates = { name, genre, followers, socialLinks };
 
     const updatedArtist = await artistService.updateArtist(id, updates);
 
@@ -59,4 +60,9 @@ const deleteArtistController = asyncHandler(async (req, res) => {
     });
 });
 
-module.exports = { createArtistController, getAllArtistController, updateArtistController, deleteArtistController };
+module.exports = {
+    createArtistController,
+    getAllArtistController,
+    updateArtistController,
+    deleteArtistController,
+};

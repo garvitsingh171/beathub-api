@@ -28,7 +28,8 @@ const getAllPlaylistController = asyncHandler(async (req, res) => {
 
 const updatePlaylistController = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const updates = req.body;
+    const { name, user, songs } = req.body;
+    const updates = { name, user, songs };
 
     const updatedPlaylist = await playlistService.updatePlaylist(id, updates);
 

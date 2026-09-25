@@ -28,7 +28,8 @@ const getAllAlbumController = asyncHandler(async (req, res) => {
 
 const updateAlbumController = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const updates = req.body;
+    const { title, releaseDate, artist } = req.body;
+    const updates = { title, releaseDate, artist };
 
     const updatedAlbum = await albumService.updateAlbum(id, updates);
 

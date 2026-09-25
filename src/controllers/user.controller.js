@@ -29,7 +29,8 @@ const getAllUsersController = asyncHandler(async (req, res) => {
 
 const updateUserController = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const updates = req.body;
+    const { username, email, password } = req.body;
+    const updates = { username, email, password };
 
     const updatedUser = await userService.updateUser(id, updates);
 
