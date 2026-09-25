@@ -1,37 +1,56 @@
 {
-  "name": "beathub",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "jest",
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "dotenv": "^17.2.4",
-    "express-validator": "^7.2.1",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.1.6",
-    "nodemon": "^3.1.11",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
-  },
-  "devDependencies": {
-    "jest": "^30.2.0",
-    "supertest": "^7.2.2"
-  },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "./tests/setup.js"
+    "name": "beathub",
+    "version": "1.0.0",
+    "description": "Production-oriented REST API for BeatHub music catalog and playlists",
+    "main": "index.js",
+    "scripts": {
+        "test": "jest",
+        "start": "node src/server.js",
+        "dev": "nodemon src/server.js",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "test:coverage": "jest --coverage --runInBand"
+    },
+    "keywords": [
+        "node",
+        "express",
+        "mongodb",
+        "mongoose",
+        "jwt",
+        "rest-api"
     ],
-    "testEnvironment": "node",
-    "testTimeout": 15000
-  }
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "dependencies": {
+        "bcryptjs": "^3.0.3",
+        "dotenv": "^17.2.4",
+        "express-validator": "^7.2.1",
+        "express": "^5.2.1",
+        "jsonwebtoken": "^9.0.3",
+        "mongoose": "^9.1.6",
+        "helmet": "^8.1.0",
+        "express-rate-limit": "^8.2.1",
+        "pino": "^10.1.0",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1"
+    },
+    "devDependencies": {
+        "eslint": "^9.39.1",
+        "jest": "^30.2.0",
+        "nodemon": "^3.1.11",
+        "prettier": "^3.6.2",
+        "supertest": "^7.2.2"
+    },
+    "engines": {
+        "node": ">=20.19.0"
+    },
+    "jest": {
+        "setupFilesAfterEnv": [
+            "./tests/setup.js"
+        ],
+        "testEnvironment": "node",
+        "testTimeout": 15000
+    }
 }

@@ -1,122 +1,100 @@
 # BeatHub API
 
-Production-ready CRUD API for BeatHub built with Node.js, Express, and MongoDB.
+BeatHub is a Node.js REST API for managing users, artists, albums, songs, and playlists. It demonstrates structured backend architecture, JWT authentication and RBAC, MongoDB data modelling, validation, cursor pagination, and production-oriented API engineering.
 
-## Live Deployment URL
-- API Base URL: ADD_YOUR_LIVE_URL_HERE
-- Swagger Docs URL: ADD_YOUR_LIVE_URL_HERE/api-docs
+There is no hosted deployment configured. Local Swagger documentation is available at `http://localhost:3000/api-docs`.
 
-## Test Credentials
-- Admin: `admin@beathub.com` / `Admin@123`
-- User: `user@beathub.com` / `User@123`
+## Stack
 
-## Production Checks
-- JWT login is available at `POST /api/auth/login`
-- Protected routes return `401` when the `Authorization` header is missing
-- Admin-only routes return `403` for non-admin users
-- API requests are rate-limited and return `429` after repeated bursts
-- Song pagination is available through `GET /api/songs?limit=10&cursor=...`
-- Responses never include password hashes
-- Database connection uses `MONGODB_URI` or `MONGO_URI`
+Node.js, Express, MongoDB, Mongoose, CommonJS, JWT, bcryptjs, express-validator, Jest, Supertest, Helmet, Pino, and Swagger/OpenAPI.
 
-## Required Environment Variables
-- `PORT`
-- `MONGODB_URI` (preferred)
-- `MONGO_URI` (fallback supported)
-- `JWT_SECRET`
-- `JWT_EXPIRES_IN`
-- `SWAGGER_SERVER_URL` (optional; set this to your live base URL so Swagger shows production server)
+## Architecture
 
-## Docker & Local Deployment
+`Express routes -> validation/auth middleware -> controllers -> services -> Mongoose models -> MongoDB`
 
-### Local Development with Docker Compose
-```bash
-# Start both API and MongoDB
-docker-compose up -d
+Controllers handle HTTP concerns. Services enforce relationships and deletion integrity. Models provide schema constraints and indexes. Centralized middleware handles errors, rate limiting, logging, security headers, and request parsing.
 
-# View logs
-docker-compose logs -f api
+## Authentication and Data Integrity
 
-# Seed the database (optional)
-docker exec beathub_api node scripts/seed500.js
+- `POST /api/auth/login` returns a Bearer JWT.
+- User and admin roles are preserved; admin CRUD routes require both authentication and the `admin` role.
+- JWT configuration is centralized and has no hardcoded fallback secret.
+- Password hashes are excluded from queries and explicitly removed from login responses.
+- Create/update payloads are field-whitelisted in controllers and services.
+- Song, album, playlist, and deletion relationships are checked in services.
+- Errors use a predictable `{ success, error: { code, message } }` shape. Production errors do not expose stacks or database internals.
 
-# Stop services
-docker-compose down
-```
+## Endpoints
 
-### Build and Run Individual Container
-```bash
-# Build the image
-docker build -t beathub-api .
-
-# Run with local .env file
-docker run -p 3000:3000 --env-file .env beathub-api
-
-# Or run with inline environment variables
-docker run -p 3000:3000 \
-  -e MONGODB_URI="mongodb+srv://user:pass@cluster.mongodb.net/beatHub" \
-  -e JWT_SECRET="your-secret-key" \
-  -e JWT_EXPIRES_IN="7d" \
-  beathub-api
-```
-
-## Local Setup
-```bash
-npm install
-npm start
-```
-
-## Development Mode
-```bash
-npm run dev
-```
-
-## API Documentation
-Swagger UI is available at:
-- `http://localhost:3000/api-docs`
-
-## Main Endpoints
+- `GET /` health check
 - `POST /api/auth/login`
 - `POST /api/users/register`
 - `GET /api/users`
 - `PATCH /api/users/:id`
 - `DELETE /api/users/:id`
 - `POST /api/songs/register`
-- `GET /api/songs`
+- `GET /api/songs?limit=10&cursor=...`
 - `PATCH /api/songs/:id`
 - `DELETE /api/songs/:id`
-- `POST /api/playlist/register`
-- `GET /api/playlist`
-- `PATCH /api/playlist/:id`
-- `DELETE /api/playlist/:id`
-- `POST /api/artist/register`
-- `GET /api/artist`
-- `PATCH /api/artist/:id`
-- `DELETE /api/artist/:id`
-- `POST /api/album/register`
-- `GET /api/album`
-- `PATCH /api/album/:id`
-- `DELETE /api/album/:id`
+- `POST /api/artist/register`, `GET /api/artist`, `PATCH /api/artist/:id`, `DELETE /api/artist/:id`
+- `POST /api/album/register`, `GET /api/album`, `PATCH /api/album/:id`, `DELETE /api/album/:id`
+- `POST /api/playlist/register`, `GET /api/playlist`, `PATCH /api/playlist/:id`, `DELETE /api/playlist/:id`
+- `GET /api/analytics/top-users`
 
-## Deployment Notes
-- Use Render or another cloud host with a public HTTPS URL.
-- Set all environment variables in the cloud dashboard instead of committing a local `.env` file.
-- Point `SWAGGER_SERVER_URL` to the deployed base URL so the docs show the live server.
+Swagger documents these resources at `/api-docs`. The Postman collection is in `postman/api-tests.json`; set its local seed variables and run the login request first so the saved token is inherited by protected requests.
 
-## Status Codes Used
-- `201` Created for successful POST requests
-- `200` Success for GET/PATCH/DELETE requests
-- `400` Validation error / bad request
-- `401` Missing or invalid token
-- `403` Role not allowed
-- `429` Too many requests
-- `404` Resource not found
-- `500` Internal server error
+## Configuration
 
-## Postman Collection
-The exported-style Postman collection is available at:
-- `postman/api-tests.json`
+Copy `.env.example` to `.env` and set a random `JWT_SECRET` with at least 32 characters. Required values are `NODE_ENV`, `PORT`, `MONGODB_URI` (or `MONGO_URI`), `JWT_SECRET`, and `JWT_EXPIRES_IN`. `SWAGGER_SERVER_URL`, JSON body size, and rate-limit values are configurable.
 
-## Security Note
-- `.env` is gitignored.
-- Never commit secrets or database credentials.
+Never commit `.env` or real credentials. The documented seed accounts (`admin@beathub.com` / `Admin@123` and `user@beathub.com` / `User@123`) are local seed data only.
+
+## Local Development
+
+```bash
+npm ci
+npm run dev
+```
+
+Quality checks:
+
+```bash
+npm run lint
+npm run format:check
+npm test
+npm run test:coverage
+```
+
+Integration tests use `TEST_MONGO_URI` and clean only that database. For example:
+
+```bash
+NODE_ENV=test TEST_MONGO_URI=mongodb://127.0.0.1:27017/beathub_test JWT_SECRET=replace-with-at-least-32-characters npm test -- --runInBand
+```
+
+## Seeding
+
+The seed script creates 500 artists, albums, songs, regular users, playlists, and two local demo users. It is destructive and refuses to run in production or without `SEED_RESET=true`:
+
+```bash
+NODE_ENV=development SEED_RESET=true node scripts/seed500.js
+```
+
+## Docker
+
+Docker Compose runs the API and MongoDB without committing secrets. Set `JWT_SECRET` in the shell or a local `.env` before starting:
+
+```bash
+export JWT_SECRET='a-random-local-secret-at-least-32-characters'
+docker compose up --build -d
+docker exec beathub_api node scripts/seed500.js
+```
+
+The image runs as a non-root user, installs production dependencies, and includes the seed script. The in-memory rate-limit store is appropriate for a single instance; horizontally scaled deployments need a shared store, which is deliberately outside this project’s scope.
+
+## CI and Project Structure
+
+GitHub Actions runs install, lint, formatting, and tests against a MongoDB service. Source code follows the route/controller/service/model structure described above. `db/` owns database connection setup, `src/config/` owns validated runtime configuration and Swagger, `src/middlewares/` owns cross-cutting HTTP concerns, `models/` owns Mongoose schemas, and `tests/` owns integration coverage.
+
+## Engineering Tradeoffs
+
+MongoDB and Mongoose fit the existing document relationships and keep the project approachable. Cursor pagination is retained for stable descending song `_id` traversal. Reference validation lives in the application layer because MongoDB does not enforce foreign keys. JWT and simple RBAC preserve the existing authentication model. Rate limiting remains process-local and is explicitly documented as a single-instance limitation.
