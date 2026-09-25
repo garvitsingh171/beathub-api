@@ -15,6 +15,8 @@ const artistSchema = new mongoose.Schema(
         followers: {
             type: Number,
             default: 0,
+            min: 0,
+            validate: Number.isInteger,
         },
         socialLinks: {
             twitter: String,
@@ -23,5 +25,7 @@ const artistSchema = new mongoose.Schema(
     },
     { timestamps: true },
 );
+
+artistSchema.index({ name: 1 });
 
 module.exports = mongoose.model("Artist", artistSchema);

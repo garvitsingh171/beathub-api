@@ -7,6 +7,8 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: true,
             unique: true,
+            trim: true,
+            minlength: 3,
         },
         email: {
             type: String,
@@ -54,6 +56,13 @@ UserSchema.pre("save", async function () {
 
 UserSchema.methods.comparePassword = async function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
+};
+
+UserSchema.methods.toSafeObject = function () {
+    const user = this.toObject();
+    delete user.password;
+    delete user.__v;
+    return user;
 };
 
 module.exports = mongoose.model("User", UserSchema);
