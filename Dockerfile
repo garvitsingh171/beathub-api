@@ -1,4 +1,4 @@
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN npm ci --omit=dev
 
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 ENV NODE_ENV=production
 
@@ -19,6 +19,7 @@ COPY --chown=appuser:appgroup package*.json ./
 COPY --chown=appuser:appgroup src ./src
 COPY --chown=appuser:appgroup models ./models
 COPY --chown=appuser:appgroup db ./db
+COPY --chown=appuser:appgroup scripts ./scripts
 
 USER appuser
 

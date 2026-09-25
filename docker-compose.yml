@@ -1,43 +1,40 @@
-version: "3.8"
-
 services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: beathub_api
-    ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: development
-      PORT: 3000
-      MONGODB_URI: mongodb://db:27017/beatHub
-      MONGO_URI: mongodb://db:27017/beatHub
-      JWT_SECRET: dev-secret-key-local-only
-      JWT_EXPIRES_IN: 7d
-      SWAGGER_SERVER_URL: http://localhost:3000
-    depends_on:
-      - db
-    networks:
-      - beathub-network
-    restart: unless-stopped
+    api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: beathub_api
+        ports:
+            - "3000:3000"
+        environment:
+            NODE_ENV: ${NODE_ENV:-development}
+            PORT: ${PORT:-3000}
+            MONGODB_URI: ${MONGODB_URI:-mongodb://db:27017/beatHub}
+            JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET to a value at least 32 characters long}
+            JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+            SWAGGER_SERVER_URL: ${SWAGGER_SERVER_URL:-http://localhost:3000}
+        depends_on:
+            - db
+        networks:
+            - beathub-network
+        restart: unless-stopped
 
-  db:
-    image: mongo:6
-    container_name: beathub_db
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_DATABASE: beatHub
-    volumes:
-      - db-data:/data/db
-    networks:
-      - beathub-network
-    restart: unless-stopped
+    db:
+        image: mongo:6
+        container_name: beathub_db
+        ports:
+            - "27017:27017"
+        environment:
+            MONGO_INITDB_DATABASE: beatHub
+        volumes:
+            - db-data:/data/db
+        networks:
+            - beathub-network
+        restart: unless-stopped
 
 volumes:
-  db-data:
+    db-data:
 
 networks:
-  beathub-network:
-    driver: bridge   
+    beathub-network:
+        driver: bridge
