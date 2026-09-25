@@ -8,9 +8,7 @@ const loginValidation = [
         .withMessage("email is required")
         .isEmail()
         .withMessage("email must be valid"),
-    body("password")
-        .notEmpty()
-        .withMessage("password is required"),
+    body("password").notEmpty().withMessage("password is required"),
 ];
 
 module.exports = {

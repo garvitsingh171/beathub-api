@@ -1,6 +1,9 @@
 const express = require("express");
 const validateRequest = require("../middlewares/validate.middleware");
-const { authenticateToken, requireRole } = require("../middlewares/auth.middleware");
+const {
+    authenticateToken,
+    requireRole,
+} = require("../middlewares/auth.middleware");
 const {
     createSongController,
     getSongsCursor,
@@ -15,12 +18,33 @@ const {
 
 const router = express.Router();
 
-router.post("/register", authenticateToken, requireRole("admin"), createSongValidation, validateRequest, createSongController);
+router.post(
+    "/register",
+    authenticateToken,
+    requireRole("admin"),
+    createSongValidation,
+    validateRequest,
+    createSongController,
+);
 
 router.get("/", getSongsCursor);
 
-router.patch("/:id", authenticateToken, requireRole("admin"), updateSongValidation, validateRequest, updateSongController);
+router.patch(
+    "/:id",
+    authenticateToken,
+    requireRole("admin"),
+    updateSongValidation,
+    validateRequest,
+    updateSongController,
+);
 
-router.delete("/:id", authenticateToken, requireRole("admin"), deleteSongValidation, validateRequest, deleteSongController);
+router.delete(
+    "/:id",
+    authenticateToken,
+    requireRole("admin"),
+    deleteSongValidation,
+    validateRequest,
+    deleteSongController,
+);
 
 module.exports = router;

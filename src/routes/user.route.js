@@ -1,6 +1,9 @@
 const express = require("express");
 const validateRequest = require("../middlewares/validate.middleware");
-const { authenticateToken, requireRole } = require("../middlewares/auth.middleware");
+const {
+    authenticateToken,
+    requireRole,
+} = require("../middlewares/auth.middleware");
 const {
     createUserController,
     getAllUsersController,
@@ -33,7 +36,12 @@ const router = express.Router();
  *       400:
  *         description: Validation error
  */
-router.post("/register", createUserValidation, validateRequest, createUserController);
+router.post(
+    "/register",
+    createUserValidation,
+    validateRequest,
+    createUserController,
+);
 
 /**
  * @swagger
@@ -73,7 +81,14 @@ router.get("/", authenticateToken, requireRole("admin"), getAllUsersController);
  *       404:
  *         description: User not found
  */
-router.patch("/:id", authenticateToken, requireRole("admin"), updateUserValidation, validateRequest, updateUserController);
+router.patch(
+    "/:id",
+    authenticateToken,
+    requireRole("admin"),
+    updateUserValidation,
+    validateRequest,
+    updateUserController,
+);
 
 /**
  * @swagger
@@ -93,6 +108,13 @@ router.patch("/:id", authenticateToken, requireRole("admin"), updateUserValidati
  *       404:
  *         description: User not found
  */
-router.delete("/:id", authenticateToken, requireRole("admin"), deleteUserValidation, validateRequest, deleteUserController);
+router.delete(
+    "/:id",
+    authenticateToken,
+    requireRole("admin"),
+    deleteUserValidation,
+    validateRequest,
+    deleteUserController,
+);
 
 module.exports = router;

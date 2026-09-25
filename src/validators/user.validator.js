@@ -24,9 +24,21 @@ const createUserValidation = [
 
 const updateUserValidation = [
     mongoIdParamValidator("id"),
-    body("username").optional().trim().isLength({ min: 3 }).withMessage("username must be at least 3 characters"),
-    body("email").optional().trim().toLowerCase().isEmail().withMessage("email must be valid"),
-    body("password").optional().isLength({ min: 6 }).withMessage("password must be at least 6 characters"),
+    body("username")
+        .optional()
+        .trim()
+        .isLength({ min: 3 })
+        .withMessage("username must be at least 3 characters"),
+    body("email")
+        .optional()
+        .trim()
+        .toLowerCase()
+        .isEmail()
+        .withMessage("email must be valid"),
+    body("password")
+        .optional()
+        .isLength({ min: 6 })
+        .withMessage("password must be at least 6 characters"),
 ];
 
 const deleteUserValidation = [mongoIdParamValidator("id")];

@@ -1,4 +1,10 @@
 const User = require("../../models/User");
+const Playlist = require("../../models/Playlist");
+
+const clean = (data) =>
+    Object.fromEntries(
+        Object.entries(data).filter(([, value]) => value !== undefined),
+    );
 
 const createUser = async (userData) => {
     const newUser = await User.create(userData);
@@ -20,12 +26,16 @@ const updateUser = async (id, updates) => {
     const user = await User.findById(id).select("+password");
     if (!user) return null;
 
-    Object.assign(user, updates);
+    Object.assign(user, clean(updates));
     await user.save();
     return user;
 };
 
 const deleteUser = async (id) => {
+    if (await Playlist.exists({ user: id })) {
+        const AppError = require("../utils/appError");
+        throw new AppError("User is referenced by existing playlists", 409);
+    }
     return await User.findByIdAndDelete(id);
 };
 
